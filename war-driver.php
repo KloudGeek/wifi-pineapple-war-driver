@@ -93,7 +93,7 @@ function run_scand() {
                 for ($i = 0; $i < count($value); $i++) {
                     if (is_array($value[$i]->clients) && !(in_array($value[$i]->bssid, $handshake_req))) { 
                         $handshake_hdr = $value[$i];
-                        echo "> Found AP with clients (". ($handshake_hdr->ssid . ", " . ($handshake_hdr->bssid) .")\n";
+                        echo "> Found AP with clients (". ($handshake_hdr->ssid) . ", " . ($handshake_hdr->bssid) .")\n";
                         $params_handshake_hdr = array(
                             'ssid'          =>  $handshake_hdr->ssid,
                             'bssid'         =>  $handshake_hdr->bssid,
