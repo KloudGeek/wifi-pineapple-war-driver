@@ -66,12 +66,11 @@ function set_aggro() {
 
 function run_scand() {
 
-/**********
-*   # Disabling temporarily; for some reason the recon scan returns null when either of these executes
-*
-*    set_aggro();
-*    authorized_post('/api/recon/stop', null, 'Stopping active recon scans');
-**********/
+    set_aggro();
+    authorized_post('/api/recon/stop', null, 'Stopping active recon scans');
+
+    # Need a brief pause or API won't return results in the next step
+    sleep (1);
 
     $scan = authorized_post('/api/recon/start', array(
         'live' => true,
