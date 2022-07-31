@@ -93,7 +93,11 @@ function run_scand() {
                 for ($i = 0; $i < count($value); $i++) {
                     if (is_array($value[$i]->clients) && !(in_array($value[$i]->bssid, $handshake_req))) { 
                         $handshake_hdr = $value[$i];
-                        echo "> Found AP with clients (". ($handshake_hdr->ssid) . ", " . ($handshake_hdr->bssid) .")\n";
+                        if ($handshake_hdr->ssid === null) {
+                            echo "> Found AP with clients (". ($handshake_hdr->bssid) .")\n";
+                        } else {
+                            echo "> Found AP with clients (". ($handshake_hdr->ssid) . ", " . ($handshake_hdr->bssid) .")\n";
+                        }
                         $params_handshake_hdr = array(
                             'ssid'          =>  $handshake_hdr->ssid,
                             'bssid'         =>  $handshake_hdr->bssid,
@@ -119,7 +123,11 @@ function run_scand() {
             foreach ($handshake_req as $hs_req) {
                 $bssid = $hs_req['bssid'];
                 $ssid = $hs_req['ssid'];
-                $bssid_msg = 'Starting handshake capture ('. $ssid . ", " . $bssid .')';
+                if ($ssid === null) {
+                    $bssid_msg = 'Starting handshake capture ('. $bssid .')';
+                } else {
+                    $bssid_msg = 'Starting handshake capture ('. $ssid . ", " . $bssid .')';
+                }
                 authorized_post('/api/pineap/handshakes/start', $hs_req, $bssid_msg);
                 $cap_details = authorized_get('/api/pineap/handshakes/check', null, 'Getting status of handshake process');
                 $counter = 0;
