@@ -65,9 +65,32 @@ function set_aggro() {
     authorized_put('/api/pineap/settings', $pineAP_aggro_settings, 'Enabling pineAP (AGGRO settings)');
 }
 
+function set_passive() {
+    $pineAP_passive_settings = array('mode' => 'advanced', 'settings' => array(
+        'ap_channel' => '11',
+        'autostart' => true,
+        'autostartPineAP' => true,
+        'beacon_interval' => 'PASSIVE',
+        'beacon_response_interval' => 'PASSIVE',
+        'beacon_responses' => false,
+        'broadcast_ssid_pool' => false,
+        'capture_ssids' => true,
+        'connect_notifications' => false,
+        'disconnect_notifications' => false,
+        'enablePineAP' => true,
+        'karma' => false,
+        'logging' => true,
+        'pineap_mac' => '00:13:37:A8:1C:BB',    # Update if desired
+        'target_mac' => 'FF:FF:FF:FF:FF:FF'
+    ));
+    authorized_put('/api/pineap/settings', $pineAP_passive_settings, 'Enabling pineAP (Passive settings)');
+}
+
+
 function run_scand() {
 
-    set_aggro();
+    #set_aggro();       # Replaced with Passive mode as handshake capture doesn't require broadcasting the AP pool; greatly reduced load on the device
+    set_passive();
 
     # Ideally, should check first if a recon is running and only if so should a stop be attempted.
     authorized_post('/api/recon/stop', null, 'Stopping active recon scans');
@@ -77,9 +100,9 @@ function run_scand() {
 
     # Ideally, check to confirm a running scan was successfully stopped before trying to start a new one.
     $scan = authorized_post('/api/recon/start', array(
-        'live' 		    => true,
-        'scan_time' 	=> 0,
-        'band' 		    => '2'	# 0=2.4GHz, 1=5GHz, 2=Both
+        'live' 		    => true,    # true, false
+        'scan_time' 	=> 0,       # integer value in minutes
+        'band' 		    => '2'	    # string value: 0=2.4GHz, 1=5GHz, 2=Both
     ), 'Starting a continous recon scan');
     if ($scan->scanRunning != 1) { echo "> Recon scan failed, check logs\n"; die(); }
 
@@ -257,6 +280,7 @@ Function Get_PineAP_Settings () {
     print_r ($pineap_settings);
     return json_decode($pineap_settings, false);
 }
+
 
 function Get_PineAP_Handshake () {
     $pineap_hs = authorized_get('/api/pineap/handshakes', null, 'Getting PineAP handshakes');
