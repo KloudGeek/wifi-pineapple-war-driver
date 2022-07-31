@@ -11,7 +11,7 @@ __      ____ _ _ __       __| |_ __(_)_   _____ _ __. ._ __ | |__  _ __
                                                                                
  ```                                                                                                                                                                                                                                       
 
-This simple PHP script is an aggressive war-driver for the [Hak Wifi Pineapple Mark VII](https://shop.hak5.org/products/wifi-pineapple) to fully automate your recon, 
+This simple PHP script is an aggressive war-driver for the [Hak Wifi Pineapple Mark VII](https://shop.hak5.org/products/wifi-pineapple) (updated for v2 firmware) to fully automate your recon, 
 de-authing and handshake capturing.  Turn this thing on, take your Pineapple for a walk around town, and collect those handshakes without any effort.
 
 Pair this with [loot-n-scoot.sh](https://github.com/sailboat-anon/wifi-pineapple-mark-vii) to auto-submit your captures to onlinehashcrack.com for free, 
